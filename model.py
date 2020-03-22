@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize
 
-def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau):
+def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L):
     s, p_x, p_y, d_x, d_y, H, H_min = x
     s_x = p_x * s
     s_y = p_y * s
@@ -31,15 +31,15 @@ def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau):
 
     E = ((np.power(alpha_y, 2) * np.power(D_y, 2) + np.power(alpha_x, 2) * np.power(D_x, 2) + 4 * alpha_x * alpha_y * D_x * D_y)/(4 * (alpha_x * D_x + alpha_y * D_y)) + ((alpha_x * D_x + alpha_y * D_y)/(12 * alpha_x * alpha_y * D_x * D_y)) * (1 - (alpha_x * alpha_y)/2)) * (1 - np.power(alpha_x, 2) * np.power(alpha_y, 2)) + (1/3) * (alpha_x * D_x + alpha_y * D_y) * (np.power(alpha_x, 2) * np.power(alpha_y, 2)) + (1/4) * (D_x * (2 - 3 * alpha_x + np.power(alpha_x, 3) + D_y * (2 - 3 * alpha_y + np.power(alpha_y, 3))))
 
-    reciprocal_v_c = ((1/v) + (tau/s)) + (1 + e_T) * (big_lambda/V) * Dtau # or (big_lambda/(V * Dtau))
+    reciprocal_v_c = ((1/v) + (tau/s)) + (1 + e_T) * (big_lambda/V) * Dtau
 
     M = V * reciprocal_v_c
     T = E * reciprocal_v_c
 
-    #z_a = pi_V * V + pi_M + M + pi_L * L
-    #z_u = A + W + T + (delta/v_w) * e_T
+    z_a = pi_V * V + pi_M + M + pi_L * L
+    z_u = A + W + T + (delta/v_w) * e_T
 
-    #return z_a + z_u
+    return z_a + z_u
 
 def main():
     #test = model([])
