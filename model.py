@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L):
-    s, p_x, p_y, d_x, d_y, H, H_min = x
+    s, p_x, p_y, d_x, d_y, H = x
     s_x = p_x * s
     s_y = p_y * s
     alpha_x = d_x/D_x
@@ -42,8 +42,9 @@ def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi
     return z_a + z_u
 
 def main():
-    #test = model([])
-    #print(test)
+    #test case off barcelona
+    test = model([1.25, 1, 1, 10, 5, 3], 10, 5, 45000, 20000, 150, 21.4, 2, 31, 1.5, 0.1, 5.2, 60.2, 80)
+    print(test)
 
 if __name__ == "__main__":
     main()
