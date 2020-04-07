@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, NonlinearConstraint
 
 def model(x, D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L):
     s, p_x, p_y, d_x, d_y, H = x
@@ -76,7 +76,41 @@ def main():
     print(test)
     '''
 
-    print(minimize(model, [0.65, 2.0, 1.0, 8.5, 4.25, 0.05], (10.0, 5.0, 45000.0, 20000.0, 150.0, 21.4, 2.0, 0.008611111111, 0.0004166666667, 0.03, 5.2, 60.2, 80.0)))
+    #constants
+    D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L = 10.0, 5.0, 45000.0, 20000.0, 150.0, 21.4, 2.0, 0.008611111111, 0.0004166666667, 0.03, 5.2, 60.2, 80.0
+    H_min = 0.05
+    N = 13.07692308 
+
+    #constraints
+    def constraint_func(x):
+        s, p_x, p_y, d_x, d_y, H = x
+        s_x = p_x * s
+        s_y = p_y * s
+        alpha_x = d_x/D_x
+        alpha_y = d_y/D_y
+
+        O_y_1 = (big_lambda * H * (1 + alpha_x) * (1 - alpha_y))/(4 * alpha_x * D_x)
+        O_y_2 = ((big_lambda * H * np.power(1 - alpha_x, 2) * np.power(1 + alpha_y, 2))/32) + (big_lambda * s_y * H * (4 - np.power(1 + alpha_y, 2) * np.power(1 - alpha_x, 2) - 2 * np.power(alpha_x, 2) * np.power(alpha_y, 2)))/(8 * alpha_x * D_x)
+        O_y = max(O_y_1, O_y_2)
+
+        O_x_1 = (big_lambda * H * (1 + alpha_y) * (1 - alpha_x))/(4 * alpha_y * D_y)
+        O_x_2 = ((big_lambda * H * np.power(1 - alpha_y, 2) * np.power(1 + alpha_x, 2))/32) + (big_lambda * s_x * H * (4 - np.power(1 + alpha_x, 2) * np.power(1 - alpha_y, 2) - 2 * np.power(alpha_x, 2) * np.power(alpha_y, 2)))/(8 * alpha_y * D_y)
+        O_x = max(O_x_1, O_x_2)
+
+        return np.array([s, alpha_x - s_x/D_x, alpha_y - s_y/D_y, H - H_min, C - O_x, C - O_y, N - ((alpha_x * D_x)/s_x + (alpha_y * D_y)/s_y)])
+
+    constraint = NonlinearConstraint(constraint_func, 0, np.inf)
+    
+    res = minimize(model, [0.65, 2.0, 1.0, 8.5, 4.25, 0.05], method="trust-constr", constraints=constraint, args=(D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L))
+
+    s, p_x, p_y, d_x, d_y, H = res.x
+    print("s: " + str(s))
+    print("p_x: " + str(p_x))
+    print("p_y: " + str(p_y))
+    print("d_x: " + str(d_x))
+    print("d_y: " + str(d_y))
+    print("H: " + str(H))
+    print("z: " + str(res.fun))
 
 if __name__ == "__main__":
     main()
