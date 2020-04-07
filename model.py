@@ -104,13 +104,24 @@ def main():
     res = minimize(model, [0.65, 2.0, 1.0, 8.5, 4.25, 0.05], method="trust-constr", constraints=constraint, args=(D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L))
 
     s, p_x, p_y, d_x, d_y, H = res.x
+    print("Pre-rounding:")
     print("s: " + str(s))
     print("p_x: " + str(p_x))
     print("p_y: " + str(p_y))
     print("d_x: " + str(d_x))
     print("d_y: " + str(d_y))
     print("H: " + str(H))
-    print("z: " + str(res.fun))
+    print("z: " + str(res.fun) + "\n")
+
+    zround = model([s, round(p_x), round(p_y), d_x, d_y, H], D_x, D_y, big_lambda, small_lambda, C, v, v_w, tau, Dtau, delta, pi_V, pi_M, pi_L)
+    print("Post-rounding:")
+    print("s: " + str(s))
+    print("p_x: " + str(round(p_x)))
+    print("p_y: " + str(round(p_y)))
+    print("d_x: " + str(d_x))
+    print("d_y: " + str(d_y))
+    print("H: " + str(H))
+    print("z: " + str(zround))
 
 if __name__ == "__main__":
     main()
